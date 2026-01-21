@@ -28,5 +28,38 @@ class ObservationService:
             return "Warning"    # Orange
         return "Normal" # Green
     
+    @staticmethod 
+    def create_fhir_payload(obs_obj):
+        """
+        Python class into the specific json format required by the FHIR R4 standard.
+        """
+        fhir_data = {
+            "resourceType": "Observation",
+            "status": "final",
+            "code": {
+                "coding": [{"system": "http://loinc.org", "code": "85353-1", "display": "Vital signs panel"}]
+            },
+            "subject": {"reference": f"Patient/{obs_obj.patient_id}"},
+            "effectiveDateTime": obs_obj.effective_datetime,
+            "component": [
+            ] # add or look every componenets 
+        }
+
+        for key, comp in obs_obj.components.items(): # dict in components and add them to the list
+            fhir_data["component"].append({
+                "code": {
+                    "coding": [{"system": "http://loinc.org", "code": comp.code, "display": comp.display}]
+                },
+                "valueQuantity": {
+                    "value": comp.value,
+                    "unit": comp.unit,
+                    "system": "http://unitsofmeasure.org",
+                    "code": comp.unit
+                }
+            })
+            
+        return fhir_data
+        
+    
     
     
