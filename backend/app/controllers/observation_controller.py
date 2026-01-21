@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from datetime import datetime
+from datetime import datetime,timezone
 import uuid
 from app.models.observation import Observation
 from app.models.component import ObservationComponent
@@ -9,7 +9,7 @@ from app.storage.db import db
 router = APIRouter()
 
 @router.post("/api/fhir/observation")
-def create_observation(payload):
+def create_observation(payload:dict):
     # validation
     if payload.get("resourceType") != "Observation":
         raise HTTPException(status_code=400, detail="Invalid FHIR resources")
@@ -19,9 +19,9 @@ def create_observation(payload):
     obs_id = str(uuid.uuid4())
     patient_ref = payload.get("subject", {}).get("reference", "Unknown")
     obs = Observation(
-        observation_id="OBS-" + datetime.utcnow().isoformat(),
+        observation_id="OBS-" + datetime.now(timezone.utc).isoformat(),
         patient_id=payload["subject"]["reference"],
-        effective_datetime=datetime.utcnow()
+        effective_datetime=datetime.now(timezone.utc)
     )
     height = None
     weight = None
@@ -29,10 +29,12 @@ def create_observation(payload):
     diastolic = 0
 
     for comp in payload.get("component",[]):
-        code = comp["code"]["coding"][0]["code"]
-        display = comp["code"]["coding"][0]["display"]
-        value = comp["valueQuantity"]["value"]
-        unit = comp["valueQuantity"]["unit"]
+        coding = comp.get("code", {}).get("coding", [{}])[0]
+        code = coding.get("code")
+        display = coding.get("display", "N/A")
+        val_qty = comp.get("valueQuantity", {})
+        value = val_qty.get("value")
+        unit = val_qty.get("unit", "")
 
         # component object
         new_comp = ObservationComponent(code,display,value,unit)
@@ -68,5 +70,29 @@ def create_observation(payload):
         "category": obs.bmi_category,
         "risk": getattr(obs, 'risk_status', 'Normal')
     }
+
+@router.get("/api/fhir/observation")
+def get_observation(patientId = None, risk = "All"):
+    """
+    Requirements: retrieve records with support for search and obesity filters.
+    """
+    all_records = db.get_all() #get everthing from the DB
+
+    # converting object to dictionary
+    results = []
+    for obs in all_records:
+        payload = ObservationService.create_fhir_payload(obs)
+        payload["bmi_category"] = obs.bmi_category
+        payload["risk_status"] = getattr(obs, 'risk_status', 'Normal')
+        results.append(payload)
+
+    if patientId: # filter by patient id
+        results = [r for r in results if patientId.lower() in r["subject"]["reference"].lower()]
+
+    # filter by risk level
+    if risk != "All":
+        results = [r for r in results if r["bmi_category"].lower() == risk.lower()]
+    return results
+
 
 
