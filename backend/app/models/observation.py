@@ -6,6 +6,6 @@ class Observation:
         self.observation_id = observation_id
         self.patient_id = patient_id
         self.effective_datetime = effective_datetime
-        self.components = []
+        self.components = {}
         self.bmi = None
         self.bmi_category = None
