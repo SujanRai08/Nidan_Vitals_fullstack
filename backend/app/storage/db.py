@@ -1,3 +1,5 @@
+import json
+
 class InMemoryDB:
     """
     Class for Storing Information 
@@ -12,5 +14,15 @@ class InMemoryDB:
     def get_all(self):
         # return all the data
         return list(self.observations.values())
-        
-db = InMemoryDB()
+
+    def save_to_disk(self):
+    # data saved to json
+        data_to_save = {
+            obs_id: obs.__dict__ for obs_id, obs in self.observations.items()
+        }
+        data_to_save = {
+        }
+        with open("data_backup.json", "w") as f:
+            json.dump(data_to_save, f, indent=4)
+
+db = InMemoryDB() # app is talking to the same dictionary
