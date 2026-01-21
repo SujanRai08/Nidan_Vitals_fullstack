@@ -25,4 +25,7 @@ class InMemoryDB:
         with open("data_backup.json", "w") as f:
             json.dump(data_to_save, f, indent=4)
 
+    def clear(self):
+        self.records = []
+
 db = InMemoryDB() # app is talking to the same dictionary
