@@ -17,12 +17,12 @@ class ObservationService:
         return "Obese"
     
     @staticmethod
-    def get_risk_status(bmi,systolic, distolic):
+    def get_risk_status(bmi,systolic, diastolic):
         """
         Requirement: Red Alerts if BMI >= 30 or BP >= 140/90.
         Returns: 'High Risk', 'Warning', or 'Normal'
         """
-        if bmi >= 30 or systolic >= 140 or distolic >= 90:
+        if bmi >= 30 or systolic >= 140 or diastolic >= 90:
             return "High Risk"  # Red
         elif 25 <= bmi < 30:
             return "Warning"    # Orange
@@ -60,6 +60,3 @@ class ObservationService:
             
         return fhir_data
         
-    
-    
-    
