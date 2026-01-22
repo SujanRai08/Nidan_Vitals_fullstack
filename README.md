@@ -23,7 +23,7 @@ To ensure the system meets clinical requirements and technical scalability, the 
 ### 1. System Architecture
 The application follows a **Decoupled Client-Server Architecture**. The FastAPI backend acts as the "Source of Truth," managing FHIR data and clinical logic, while the Frontend handles real-time user interactions.
 
-<img src="./docs/architecture.png" alt="System Architecture" width="600"/>
+<img src="./docs/Architecture.png" alt="System Architecture" width="600"/>
 
 ### 2. Activity Diagram (Observation Flow)
 This diagram illustrates the process from data entry by the nurse to BMI calculation and risk assessment storage.
