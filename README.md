@@ -63,7 +63,7 @@ See the backend setup guide here:
 
 A short demo video showing vitals entry, live BMI calculation, and filtering:
 
-See - > [Video Demo](docs/Nidan_Vitals_fullstack_Video.mp4)
+**Watch the Demo here:** [https://youtu.be/8RqNG1_WN6U]
 
 ### Testing
 The project includes a robust testing suite to ensure clinical accuracy. To run the tests, execute the following in the backend directory:
