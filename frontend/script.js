@@ -23,3 +23,47 @@ function calculateLiveBMI() {
     }
 }
 // fetch and display from table
+// cateogrory badge
+function getCategoryBadge(cat) {
+    if (cat === "Obese") return "bg-danger";
+    if (cat === "Overweight") return "bg-warning text-dark";
+    if (cat === "Normal") return "bg-success";
+    return "bg-info";
+}
+
+// Fetch and Display Table Data
+async function loadObservations(patientId = "", risk = "All") {
+    let url = `${API_BASE_URL}?risk=${risk}`;
+    if (patientId) url += `&patientId=${patientId}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const tableBody = document.getElementById('vitalsTableBody');
+        tableBody.innerHTML = "";
+
+        data.forEach(obs => {
+            // Find height and weight values from FHIR components
+            const height = obs.component.find(
+                c => c.code.coding[0].code === "8302-2"
+            )?.valueQuantity.value || "--";
+            const weight = obs.component.find(
+                c => c.code.coding[0].code === "29463-7"
+            )?.valueQuantity.value || "--";
+            
+            const row = `
+                <tr>
+                    <td>${obs.subject.reference}</td>
+                    <td>${weight}kg / ${height}cm</td>
+                    <td><span class="badge ${getCategoryBadge(obs.bmi_category)}">${obs.bmi_category}</span></td>
+                    <td><strong>${obs.risk_status}</strong></td>
+                    <td>${new Date(obs.effectiveDateTime).toLocaleString()}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    } catch (error) {
+        console.error("Error loading data:", error);
+    }
+}
+loadObservations();
