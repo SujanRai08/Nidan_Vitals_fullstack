@@ -5,13 +5,12 @@ import pytest
 
 client = TestClient(app)
 
-
 @pytest.fixture(autouse=True)
 def clear_db():
     db.clear()
 
 def test_create_and_get_observation():
-    # 1. Define a Valid FHIR Payload
+    # Define a Valid FHIR Payload
     sample_payload = {
         "resourceType": "Observation",
         "subject": { "reference": "Patient/P-999" },
@@ -27,7 +26,7 @@ def test_create_and_get_observation():
         ]
     }
 
-    # 2. Test POST (Create)
+    # Test POST (Create)
     post_response = client.post("/api/fhir/observation", json=sample_payload)
     assert post_response.status_code == 200
     
@@ -36,14 +35,13 @@ def test_create_and_get_observation():
     # BMI calculation: 95 / (1.8^2) = 29.32 (Overweight)
     assert post_data["category"] == "Overweight"
 
-    # 3. Test GET (Retrieve All)
+    # Test GET (Retrieve All)
     get_response = client.get("/api/fhir/observation")
     assert get_response.status_code == 200
     all_data = get_response.json()
     assert len(all_data) >= 1
 
-    # 4. Test Search Filter (Patient ID)
-    # We use query parameters ?patientId=P-999
+    # Test Search Filter (Patient ID)
     search_response = client.get("/api/fhir/observation?patientId=P-999")
     assert search_response.status_code == 200
     search_results = search_response.json()
